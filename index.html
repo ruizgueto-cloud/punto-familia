@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Puntos en familia</title>
+<style>
+:root{--bg:#FFF3D1;--ink:#243461;--paper:#fff;--coral:#FF7A59}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Trebuchet MS",Verdana,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--coral);color:#fff;border-bottom:4px solid var(--ink)}
+h1{margin:0;font-size:28px}
+h2{margin:0 0 12px;font-size:20px}
+.sub{font-size:14px;opacity:.95}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border:3px solid var(--ink);border-radius:999px;padding:8px 16px;background:#fff;color:var(--ink);font-weight:bold}
+button:hover{transform:translateY(-1px)}
+button:focus-visible{outline:4px solid #3A86FF;outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+button.on{background:var(--ink);color:#fff}
+main{padding:24px;max-width:1100px;margin:0 auto}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.card{background:var(--paper);border:4px solid var(--ink);border-radius:24px;box-shadow:6px 6px 0 var(--ink);padding:18px;position:relative}
+.pcard{border-top:14px solid var(--c)}
+.pcard .av{width:58px;height:58px;border-radius:50%;background:var(--c);display:grid;place-items:center;font-size:30px;border:3px solid var(--ink)}
+.pcard .nm{font-size:22px;font-weight:bold;margin:8px 0 4px}
+.big{font-size:40px;font-weight:bold;color:var(--c,var(--ink));line-height:1}
+.badge{display:inline-block;margin:4px 4px 0 0;padding:4px 10px;border-radius:999px;background:#FFE066;border:2px solid var(--ink);font-size:13px;font-weight:bold}
+.crown{position:absolute;top:-22px;right:12px;font-size:38px}
+.star{position:absolute;top:-22px;left:12px;font-size:38px}
+#cel{position:fixed;inset:0;background:rgba(36,52,97,.94);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:20;color:#fff;text-align:center;padding:20px;overflow:hidden}
+#cel .msg{font-size:32px;font-weight:bold;margin-bottom:24px;min-height:90px}
+#cel button{margin:8px}
+#cel .grupo{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.jug{position:relative;background:#fff;color:var(--ink);border:4px solid var(--c);border-radius:20px;padding:14px 16px;width:150px;transition:transform .6s}
+.jug .av{width:58px;height:58px;border-radius:50%;background:var(--c);display:grid;place-items:center;margin:0 auto 6px;border:3px solid var(--ink);font-size:26px}
+.jug.ganador{transform:scale(1.35);z-index:2;box-shadow:0 0 30px #FFE066}
+.jugstar{position:fixed;font-size:36px;transition:left .9s ease-in-out,top .9s ease-in-out;z-index:30;pointer-events:none}
+.banner{margin:0 0 16px;padding:14px 18px;background:#fff;border:4px dashed var(--ink);border-radius:20px;font-size:16px;line-height:1.4}
+.datebar{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.datebar strong{font-size:20px}
+.cat{margin:22px 0 10px;font-size:18px;color:var(--coral)}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;margin-bottom:10px}
+.pts{background:var(--ink);color:#fff;border-radius:999px;padding:2px 10px;font-size:14px;margin-left:6px;white-space:nowrap}
+.pbtns{display:flex;gap:8px}
+.pb{width:52px;height:52px;border-radius:50%;padding:0;border:3px solid var(--c);background:#fff;color:var(--c);font-size:20px;font-weight:bold}
+.pb.done{background:var(--c);color:#fff}
+.totals{display:grid;grid-template-columns:1fr auto;margin-top:14px;font-size:16px;gap:4px 12px}
+.totals div:nth-child(odd){font-weight:bold}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.chip{border-color:var(--c);color:var(--c)}
+.chip.on{background:var(--c);color:#fff}
+input{font:inherit;font-size:16px;padding:8px;border:3px solid var(--ink);border-radius:12px;width:100%;margin:4px 0 12px}
+.catalog{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.rw{text-align:center}
+.rw .em{font-size:64px;line-height:1.1}
+.rw .t{font-size:20px;font-weight:bold;margin:6px 0}
+.rw .d{font-size:15px;min-height:40px}
+.rw .cost{font-size:22px;font-weight:bold;margin:10px 0;color:var(--coral)}
+.hist{margin-top:28px}
+.hist li{margin-bottom:6px}
+.reglas h2{margin-top:22px}
+.reglas h2:first-child{margin-top:0}
+.reglas p{margin:6px 0 12px;line-height:1.5}
+#confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9}
+#confetti i{position:absolute;top:-16px;width:10px;height:14px;border-radius:3px;animation:fall 2.8s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.pts{white-space:nowrap}
+@media (max-width:600px){
+  main{padding:12px}
+  header{padding:12px;gap:8px}
+  h1{font-size:22px}
+  nav{width:100%}
+  button{padding:7px 12px;font-size:14px}
+  .grid4{grid-template-columns:1fr 1fr;gap:12px}
+  .card{padding:12px;box-shadow:4px 4px 0 var(--ink)}
+  .pcard .av{width:46px;height:46px;font-size:24px}
+  .big{font-size:30px}
+  .row{grid-template-columns:1fr;gap:10px;padding:10px 12px}
+  .row > div:first-child{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:15px}
+  .pbtns{justify-content:space-between}
+  .pb{width:46px;height:46px;font-size:17px;padding:0}
+  .catalog{grid-template-columns:1fr}
+  .totals{font-size:15px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🏆 Puntos en familia</h1>
+    <div class="sub" id="weekLabel"></div>
+  </div>
+  <nav id="tabs"></nav>
+  <div><button id="btnCel" onclick="botonCabecera()">🎉 Celebrar</button></div>
+</header>
+<main id="app"></main>
+<div id="cel"></div>
+<div id="confetti"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbxDpXVaPI7lrFQft5P7DqomnglPgJ1wYQMSY6nKBuCoQn51w0Z1FM6WCwHyIySQiT_y4w/exec';
+const DAY = 864e5, MIN = 16, RACHA_DIAS = 4, RACHA_BONUS = 6;
+const PLAYERS = [
+  {id:'chema',name:'Chema',color:'#FF6B5B',emoji:'🚀'},
+  {id:'elena',name:'Elena',color:'#2BB673',emoji:'🌸'},
+  {id:'eric',name:'Éric',color:'#3A86FF',emoji:'⚡'},
+  {id:'paula',name:'Paula',color:'#B565E8',emoji:'<svg viewBox="0 0 64 64" width="44" height="44"><path d="M6 36h52l-8 12H14z" fill="#8B5A2B" stroke="#243461" stroke-width="3" stroke-linejoin="round"/><path d="M32 36V8" stroke="#243461" stroke-width="3"/><path d="M32 10c12 4 16 12 16 20H32z" fill="#fff" stroke="#243461" stroke-width="3" stroke-linejoin="round"/><path d="M32 12c-8 2-12 8-12 16h12z" fill="#FFC93C" stroke="#243461" stroke-width="3" stroke-linejoin="round"/><path d="M6 36c-4-6-4-12 0-18" fill="none" stroke="#243461" stroke-width="3" stroke-linecap="round"/></svg>'}
+];
+const CATS = ['Casa','Cole','Convivencia','Noche y ánimo'];
+const ITEMS = [
+  {id:'cama',n:'Hago la cama',p:1,c:'Casa'},
+  {id:'mesa',n:'Pongo y quito la mesa para comer',p:2,c:'Casa'},
+  {id:'cuarto',n:'Recojo mi cuarto',p:3,c:'Casa'},
+  {id:'papas',n:'Ayudo a papá y mamá en la casa',p:2,c:'Casa'},
+  {id:'cole',n:'Salimos a tiempo para llegar al cole',p:1,c:'Cole'},
+  {id:'deberes',n:'Hago los deberes',p:1,c:'Cole'},
+  {id:'estudio',n:'Estudio',p:2,c:'Cole'},
+  {id:'caso',n:'Hago caso a la primera vez',p:3,c:'Convivencia'},
+  {id:'pelea',n:'No me peleo',p:2,c:'Convivencia'},
+  {id:'pesado',n:'No soy pesado',p:1,c:'Convivencia'},
+  {id:'bonitas',n:'Veo las cosas buenas',p:1,c:'Convivencia'},
+  {id:'ayudo',n:'Ayudo a los demás',p:1,c:'Convivencia'},
+  {id:'enfado',n:'No me he enfadado',p:3,c:'Noche y ánimo'},
+  {id:'cama2',n:'Me voy a la cama rápido',p:1,c:'Noche y ánimo'}
+];
+const MAX_DIA = ITEMS.reduce((s,i)=>s+i.p,0);
+const REWARDS = [
+  {id:'r1',e:'🕹️',t:'Media hora de pantalla',d:'Media hora de pantalla entre semana',c:25},
+  {id:'r2',e:'📺',t:'Una hora de pantalla',d:'Una hora de pantalla entre semana',c:50},
+  {id:'r3',e:'📵',t:'Libre de castigo',d:'Me libro de un castigo de sin pantallas de 30 minutos',c:100},
+  {id:'r4',e:'🍨',t:'Un postre',d:'Puedo comprar un postre',c:150},
+  {id:'r5',e:'🎬',t:'Elegir película',d:'Elijo la película',c:180},
+  {id:'r6',e:'📵',t:'Libre de castigo',d:'Me libro de un castigo de sin pantallas de 1 hora',c:200},
+  {id:'r7',e:'🍕',t:'Elegir la cena',d:'Elijo la cena de la familia',c:250},
+  {id:'r8',e:'🎉',t:'Elegir un plan',d:'Elijo un plan para hacer en familia',c:300},
+  {id:'r9',e:'🏆',t:'Plan especial',d:'Un plan especial',c:700}
+];
+
+let S = {checks:{}, redeemed:{}, ajustes:[], corona:null, anuncios:{}};
+let CLAVE = '', view = new Date(), tab = 'inicio', sel = 'chema', ajSel = 'chema', guardandoTimer = null;
+
+/* ---------- fechas ---------- */
+const p2 = n => String(n).padStart(2,'0');
+function dk(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+function num(k){const[y,m,d]=k.split('-').map(Number);return Date.UTC(y,m-1,d)/DAY}
+function keyOfNum(n){const d=new Date(n*DAY);return d.getUTCFullYear()+'-'+p2(d.getUTCMonth()+1)+'-'+p2(d.getUTCDate())}
+function todayNum(){const t=new Date();return Date.UTC(t.getFullYear(),t.getMonth(),t.getDate())/DAY}
+function weekOf(k){const n=num(k);return n-((new Date(n*DAY).getUTCDay()+6)%7)}
+function diaSemana(d){return (d.getDay()+6)%7}
+function fmt(n,o){return new Date(n*DAY).toLocaleDateString('es-ES',{timeZone:'UTC',...o})}
+
+/* ---------- puntos ---------- */
+function allKeys(){const s=new Set(Object.keys(S.checks));(S.ajustes||[]).forEach(a=>s.add(a.k));return [...s]}
+function pts(k,pid){
+  const c=(S.checks[k]||{})[pid]||{};
+  let s=ITEMS.reduce((t,i)=>t+(c[i.id]?i.p:0),0);
+  (S.ajustes||[]).forEach(a=>{if(a.k===k&&a.pid===pid)s+=a.pts});
+  return s;
+}
+function ptsSemana(w,pid){let s=0;for(let i=0;i<5;i++)s+=pts(keyOfNum(w+i),pid);return s}
+function ptsFinde(w,pid){return pts(keyOfNum(w+5),pid)+pts(keyOfNum(w+6),pid)}
+function winnerOf(list){const max=Math.max(...list.map(x=>x.v));if(max<=0)return null;const top=list.filter(x=>x.v===max);return top.length===1?top[0].pid:null}
+function weekWinner(w){return winnerOf(PLAYERS.map(p=>({pid:p.id,v:ptsSemana(w,p.id)})))}
+function ganadores(w){
+  const max=Math.max(...PLAYERS.map(p=>ptsSemana(w,p.id)));
+  if(max<=0)return [];
+  return PLAYERS.filter(p=>ptsSemana(w,p.id)===max).map(p=>p.id);
+}
+function coronaList(){return Array.isArray(S.corona)?S.corona:(S.corona?[S.corona]:[])}
+function dayWinner(k){return winnerOf(PLAYERS.map(p=>({pid:p.id,v:pts(k,p.id)})))}
+function allWeeks(){const s=new Set(allKeys().map(weekOf));Object.keys(S.anuncios||{}).forEach(w=>s.add(+w));return [...s]}
+function ultimaSemanaCerrada(){const w=weekOf(dk(new Date()));return diaSemana(new Date())>=4?w:w-7}
+function streak(pid){
+  const q=new Set();
+  allKeys().forEach(k=>{if(pts(k,pid)>=MIN)q.add(num(k))});
+  const arr=[...q].sort((a,b)=>a-b);
+  let bonus=0,run=0,prev=null;
+  for(const n of arr){run=(prev!==null&&n===prev+1)?run+1:1;prev=n;if(run%RACHA_DIAS===0)bonus+=RACHA_BONUS}
+  const t=todayNum();let cur=0;let n=q.has(t)?t:(q.has(t-1)?t-1:null);
+  if(n!==null)while(q.has(n)){cur++;n--}
+  return {bonus,cur};
+}
+function spent(pid){return (S.redeemed[pid]||[]).reduce((s,r)=>s+r.cost,0)}
+function earned(pid){return allKeys().reduce((s,k)=>s+pts(k,pid),0)+streak(pid).bonus}
+function balance(pid){return earned(pid)-spent(pid)}
+
+/* ---------- acciones ---------- */
+function toggle(pid,item){
+  const k=dk(view);
+  S.checks[k]=S.checks[k]||{};
+  S.checks[k][pid]=S.checks[k][pid]||{};
+  S.checks[k][pid][item]=!S.checks[k][pid][item];
+  if(S.checks[k][pid][item])aplauso();
+  enviar(); render();
+}
+function aplicarAjuste(){
+  const v=parseInt(document.getElementById('aj_pts').value,10);
+  if(!v){alert('Pon los puntos (distintos de 0).');return}
+  S.ajustes.push({k:dk(view),pid:ajSel,pts:v});
+  enviar(); render();
+}
+function moveDay(n){view=new Date(view.getFullYear(),view.getMonth(),view.getDate()+n);render()}
+function setTab(t){tab=t;render()}
+function pick(pid){sel=pid;render()}
+function irHoy(){view=new Date();render()}
+function borrarAjuste(i){
+  S.ajustes.splice(i,1);
+  enviar(); render();
+}
+function pickAj(pid){ajSel=pid;render()}
+function canjear(pid,rid){
+  const r=REWARDS.find(x=>x.id===rid);
+  if(balance(pid)<r.c){alert('Todavía no hay puntos suficientes');return}
+  if(!confirm(PLAYERS.find(p=>p.id===pid).name+' canjea "'+r.t+'" por '+r.c+' puntos?'))return;
+  S.redeemed[pid]=S.redeemed[pid]||[];
+  S.redeemed[pid].push({rid,label:r.t+': '+r.d,cost:r.c,date:dk(new Date())});
+  enviar(); render();
+}
+function anunciar(w){
+  if(S.anuncios[w])return;
+  const fecha=dk(new Date());
+  const ranking=PLAYERS.map(p=>({p,v:ptsSemana(w,p.id)})).sort((a,b)=>b.v-a.v);
+  const gan=ganadores(w);
+  if(!gan.length){
+    S.anuncios[w]={pid:null,fecha,texto:'No hay puntos esta semana, así que nadie gana la corona.'};
+  }else{
+    const esEmpate=gan.length>1;
+    const nombres=gan.map(id=>PLAYERS.find(x=>x.id===id).name);
+    const resto=ranking.filter(x=>!gan.includes(x.p.id)).map(x=>x.p.name+' '+x.v).join(', ');
+    const cat={};
+    if(!esEmpate){
+      for(let i=0;i<5;i++){
+        const c=(S.checks[keyOfNum(w+i)]||{})[gan[0]]||{};
+        ITEMS.forEach(it=>{if(c[it.id])cat[it.c]=(cat[it.c]||0)+it.p});
+      }
+    }
+    const top=Object.entries(cat).sort((a,b)=>b[1]-a[1])[0];
+    const txtGanador=esEmpate
+      ? 'Empate entre '+nombres.join(' y ')+' con '+ranking[0].v+' puntos cada uno. La corona es para '+(nombres.length>2?'todos ellos':'los dos')+'.'
+      : nombres[0]+' gana la corona con '+ranking[0].v+' puntos de lunes a viernes.';
+    S.anuncios[w]={pid:gan,fecha,texto:txtGanador+(resto?' Le siguen: '+resto+'.':'')+(top?' Donde más puntos sumó: '+top[0]+' ('+top[1]+' puntos).':'')};
+    S.corona=gan;
+    celebrar();
+  }
+  enviar(); render();
+}
+function celebrar(){confetti();playFanfare()}
+function ganadoresDia(k){
+  const max=Math.max(...PLAYERS.map(p=>pts(k,p.id)));
+  if(max<=0)return [];
+  return PLAYERS.filter(p=>pts(k,p.id)===max).map(p=>p.id);
+}
+function estrellaList(){
+  if(Array.isArray(S.estrella))return S.estrella;
+  const t=new Date();
+  return ganadoresDia(dk(new Date(t.getFullYear(),t.getMonth(),t.getDate()-1)));
+}
+function botonCabecera(){tab==='puntuar'?celebrarBoton():celebrar()}
+function celebrarBoton(){
+  const el=document.getElementById('cel');
+  el.style.display='flex';
+  el.innerHTML=`<div class="msg">¿Has puesto todos los puntos del ${view.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}?</div>
+    <div><button onclick="respondeCel(true)">Sí</button><button onclick="respondeCel(false)">No</button></div>`;
+}
+function respondeCel(si){
+  if(si){ceremonia();return}
+  cerrarCel();
+  celebrar();
+}
+function cerrarCel(){
+  const el=document.getElementById('cel');
+  el.style.display='none';
+  el.innerHTML='';
+}
+function redoble(seg){
+  try{
+    const A=new (window.AudioContext||window.webkitAudioContext)();
+    for(let t=0;t<seg;t+=0.04){
+      const o=A.createOscillator(), g=A.createGain();
+      o.type='triangle'; o.frequency.value=220;
+      g.gain.setValueAtTime(0.0001,A.currentTime+t);
+      g.gain.linearRampToValueAtTime(0.08,A.currentTime+t+0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001,A.currentTime+t+0.035);
+      o.connect(g).connect(A.destination);
+      o.start(A.currentTime+t); o.stop(A.currentTime+t+0.04);
+    }
+  }catch(e){}
+}
+function ceremonia(){
+  const tk=dk(view);
+  const winners=ganadoresDia(tk);
+  const prev=estrellaList();
+  const el=document.getElementById('cel');
+  el.style.display='flex';
+  el.innerHTML=`<div class="msg" id="cmsg">🥁 Redoble…</div>
+    <div class="grupo">${PLAYERS.map(p=>`<div class="jug" id="cel-${p.id}" style="--c:${p.color}"><div class="av">${p.emoji}</div><div><strong>${p.name}</strong></div><div>${pts(tk,p.id)} pts</div></div>`).join('')}</div>
+    <div id="cbtns" style="margin-top:24px"></div>`;
+  redoble(2.5);
+  setTimeout(()=>{
+    const msg=document.getElementById('cmsg');
+    if(!winners.length){
+      msg.textContent='Hoy no hay ganador';
+      document.getElementById('cbtns').innerHTML='<button onclick="cerrarCel();render()">Cerrar</button>';
+      return;
+    }
+    msg.textContent='El ganador del día es…';
+    setTimeout(()=>{
+      const nombres=winners.map(id=>PLAYERS.find(p=>p.id===id).name);
+      msg.innerHTML=(winners.length>1?'Empate: ':'')+nombres.join(' y ')+'<br><span style="font-size:24px">¡Felicidades!</span>';
+      playFanfare();
+      confetti(220);
+      winners.forEach(id=>document.getElementById('cel-'+id).classList.add('ganador'));
+      saltarEstrellas(prev,winners);
+      S.estrella=winners;
+      enviar();
+      document.getElementById('cbtns').innerHTML='<button onclick="cerrarCel();render()">Cerrar</button>';
+    },1200);
+  },2500);
+}
+function saltarEstrellas(prev,winners){
+  const cont=document.getElementById('cel');
+  const from=prev.length?document.getElementById('cel-'+prev[0]):null;
+  winners.forEach(id=>{
+    const dst=document.getElementById('cel-'+id);
+    const star=document.createElement('div');
+    star.className='jugstar'; star.textContent='⭐';
+    const base=(from||dst).getBoundingClientRect();
+    star.style.left=base.left+'px'; star.style.top=(base.top-30)+'px';
+    cont.appendChild(star);
+    setTimeout(()=>{
+      const r=dst.getBoundingClientRect();
+      star.style.left=r.left+'px'; star.style.top=(r.top-30)+'px';
+    },150);
+  });
+}
+function aplauso(){
+  try{
+    const A=new (window.AudioContext||window.webkitAudioContext)();
+    const base=1046.5;
+    [[1,0.55,1.6],[2.76,0.28,1.0],[5.40,0.12,0.6],[8.93,0.05,0.35]].forEach(([r,amp,dec])=>{
+      const o=A.createOscillator(), g=A.createGain();
+      const fin=A.currentTime+4/(dec*3);
+      o.type='sine'; o.frequency.value=base*r;
+      g.gain.setValueAtTime(amp*0.8,A.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001,fin);
+      o.connect(g).connect(A.destination);
+      o.start(A.currentTime); o.stop(fin);
+    });
+  }catch(e){}
+}
+function confetti(n=80){
+  const c=document.getElementById('confetti');
+  for(let i=0;i<n;i++){
+    const e=document.createElement('i');
+    e.style.left=Math.random()*100+'vw';
+    e.style.background=['#FF6B5B','#2BB673','#3A86FF','#B565E8','#FFC93C'][i%5];
+    e.style.animationDelay=Math.random()*.6+'s';
+    c.appendChild(e);
+  }
+  setTimeout(()=>c.innerHTML='',3600);
+}
+function playFanfare(){
+  try{
+    const A=new (window.AudioContext||window.webkitAudioContext)();
+    const notes=[[523,0,.18],[523,.2,.18],[523,.4,.18],[659,.6,.5],[587,1.1,.18],[659,1.3,.18],[784,1.5,.9]];
+    notes.forEach(([f,t,d])=>{
+      [f,f*2].forEach((ff,i)=>{
+        const o=A.createOscillator(),g=A.createGain();
+        o.type='sawtooth';o.frequency.value=ff;
+        g.gain.setValueAtTime(0,A.currentTime+t);
+        g.gain.linearRampToValueAtTime(i?0.03:0.08,A.currentTime+t+.02);
+        g.gain.exponentialRampToValueAtTime(0.001,A.currentTime+t+d);
+        o.connect(g).connect(A.destination);
+        o.start(A.currentTime+t);o.stop(A.currentTime+t+d+.05);
+      });
+    });
+  }catch(e){}
+}
+
+/* ---------- conexión con la hoja ---------- */
+function mostrarLogin(msg){
+  document.getElementById('app').innerHTML = `<div class="card" style="max-width:360px;margin:40px auto;text-align:center">
+    <h2>Entrar</h2>
+    <p>${msg||'Escribe la clave de la familia para ver los puntos.'}</p>
+    <input id="clave" type="password" placeholder="Clave" onkeydown="if(event.key==='Enter')entrar()">
+    <button onclick="entrar()">Entrar</button>
+  </div>`;
+}
+function entrar(){
+  const v=document.getElementById('clave');
+  CLAVE=(v?v.value:'').trim();
+  if(!CLAVE){mostrarLogin('Escribe la clave.');return}
+  cargarDatos();
+}
+function cargarDatos(){
+  document.getElementById('app').innerHTML='<p>Cargando datos…</p>';
+  const cb='cb'+Date.now();
+  const s=document.createElement('script');
+  const t=setTimeout(()=>fallo('tarda demasiado'),15000);
+  function limpiar(){clearTimeout(t);delete window[cb];s.remove()}
+  function fallo(m){limpiar();document.getElementById('app').innerHTML=`<p>No se pudieron cargar los datos (${m}). Recarga la página e inténtalo otra vez.</p>`}
+  window[cb]=o=>{
+    limpiar();
+    if(o.error==='clave'){CLAVE='';mostrarLogin('Clave incorrecta, prueba otra vez.');return}
+    S={checks:o.checks||{},redeemed:o.redeemed||{},ajustes:o.ajustes||[],corona:o.corona||null,anuncios:o.anuncios||{}};
+    render();
+  };
+  s.onerror=()=>fallo('error de conexión');
+  s.src=API+'?clave='+encodeURIComponent(CLAVE)+'&callback='+cb;
+  document.body.appendChild(s);
+}
+function enviar(){
+  clearTimeout(guardandoTimer);
+  guardandoTimer=setTimeout(async()=>{
+    try{
+      await fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({clave:CLAVE,estado:S})});
+    }catch(e){alert('No se pudo guardar. Revisa la conexión.')}
+  },300);
+}
+
+/* ---------- vistas ---------- */
+function inicio(){
+  const today=new Date(), tk=dk(today), w=weekOf(tk), uw=ultimaSemanaCerrada();
+  const yWin=dayWinner(dk(new Date(today.getFullYear(),today.getMonth(),today.getDate()-1)));
+  const tWin=dayWinner(tk);
+  const ultimo=Object.keys(S.anuncios).map(Number).sort((a,b)=>b-a)[0];
+  let banners='';
+  if(coronaList().length){const nombres=coronaList().map(id=>PLAYERS.find(x=>x.id===id).name).join(' y ');banners+=`<div class="banner">👑 Corona: <strong>${nombres}</strong></div>`}
+  if(ultimo!==undefined&&S.anuncios[ultimo].texto)banners+=`<div class="banner">📣 ${S.anuncios[ultimo].texto}</div>`;
+  if(!S.anuncios[uw]&&PLAYERS.some(p=>ptsSemana(uw,p.id)>0))banners+=`<div class="banner"><button onclick="anunciar(${uw})">📣 Anunciar campeón de la semana</button></div>`;
+  const cards=PLAYERS.map(p=>{
+    const st=streak(p.id);
+    return `<div class="card pcard" style="--c:${p.color}">
+      ${coronaList().includes(p.id)?'<span class="crown">👑</span>':''}
+      ${estrellaList().includes(p.id)?'<span class="star">⭐</span>':''}
+      <div class="av">${p.emoji}</div>
+      <div class="nm">${p.name}</div>
+      <div>Semana (lunes a viernes)</div><div class="big">${ptsSemana(w,p.id)}</div>
+      <div style="margin-top:8px">Fin de semana: <strong>${ptsFinde(w,p.id)}</strong></div>
+      <div>Saldo para canjear: <strong>${balance(p.id)}</strong></div>
+      <div>Hoy: <strong>${pts(tk,p.id)}</strong> de ${MAX_DIA}</div>
+      <div>
+        <span class="badge">🔥 Racha: ${st.cur} ${st.cur===1?'día':'días'}</span>
+
+
+      </div>
+    </div>`}).join('');
+  return `${banners}<div class="grid4">${cards}</div>`;
+}
+function puntuar(){
+  const k=dk(view);
+  const isToday=k===dk(new Date());
+  const head=`<div class="datebar"><button onclick="moveDay(-1)">‹ Día anterior</button>
+    <strong>${view.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}${isToday?' (hoy)':''}</strong>
+    <button onclick="moveDay(1)" ${isToday?'disabled':''}>Día siguiente ›</button><button onclick="irHoy()" ${isToday?'disabled':''}>Hoy</button></div>`;
+  const cats=CATS.map(c=>{
+    const rows=ITEMS.filter(i=>i.c===c).map(i=>`
+      <div class="row"><div><strong>${i.n}</strong><span class="pts">${i.p} pts</span></div>
+      <div class="pbtns">${PLAYERS.map(p=>{const on=!!((S.checks[k]||{})[p.id]||{})[i.id];
+        return `<button class="pb ${on?'done':''}" style="--c:${p.color}" title="${p.name}" aria-label="${p.name}: ${i.n}" aria-pressed="${on}" onclick="toggle('${p.id}','${i.id}')">${p.name[0]}</button>`}).join('')}
+      </div></div>`).join('');
+    return `<div class="cat">${c}</div>${rows}`}).join('');
+  const tot=PLAYERS.map(p=>`<div style="color:${p.color}">${p.name}</div><div>${pts(k,p.id)} pts</div>`).join('');
+  const dw=dayWinner(k);
+  const chips=PLAYERS.map(p=>`<button class="chip ${ajSel===p.id?'on':''}" style="--c:${p.color}" onclick="pickAj('${p.id}')">${p.name}</button>`).join('');
+  const listaAj=(S.ajustes||[]).map((a,i)=>({a,i})).filter(x=>x.a.k===k).map(x=>`<li>${PLAYERS.find(p=>p.id===x.a.pid).name}: ${x.a.pts>0?'+':''}${x.a.pts} <button onclick="borrarAjuste(${x.i})">✖</button></li>`).join('');
+  const ajuste=`<div class="card" style="margin-top:22px"><h2>Ajuste manual</h2>
+    <div class="chips">${chips}</div>
+    <input id="aj_pts" type="number" placeholder="Puntos (ej: -5)" onkeydown="if(event.key==='Enter')aplicarAjuste()" style="max-width:220px">
+    <button onclick="aplicarAjuste()">Aceptar</button>
+    ${listaAj?`<ul>${listaAj}</ul>`:''}
+  </div>`;
+  return `${head}${cats}<div class="card totals" style="margin-top:20px">${tot}</div>
+    <p style="margin-top:12px">${dw?'⭐ Ganador de este día: '+PLAYERS.find(x=>x.id===dw).name:'Todavía sin ganador del día'}</p>
+    ${ajuste}`;
+}
+function canjearView(){
+  const chips=PLAYERS.map(p=>`<button class="chip ${sel===p.id?'on':''}" style="--c:${p.color}" onclick="pick('${p.id}')">${p.emoji} ${p.name}</button>`).join('');
+  const pl=PLAYERS.find(p=>p.id===sel);
+  const bal=balance(sel);
+  const cat=REWARDS.map(r=>`<div class="card rw">
+      <div class="em">${r.e}</div>
+      <div class="t">${r.t}</div>
+      <div class="d">${r.d}</div>
+      <div class="cost">${r.c} puntos</div>
+      <button ${bal<r.c?'disabled':''} onclick="canjear('${sel}','${r.id}')">${bal>=r.c?'Canjear':'Faltan '+(r.c-bal)}</button>
+    </div>`).join('');
+  const hist=(S.redeemed[sel]||[]).slice().reverse().map(r=>`<li>${r.date}: ${r.label} (−${r.cost})</li>`).join('')||'<li>Todavía no ha canjeado nada</li>';
+  return `<div class="chips">${chips}</div>
+    <div class="card" style="margin-bottom:18px;border-top:14px solid ${pl.color}">Saldo de <strong>${pl.name}</strong>: <span class="big" style="font-size:32px;color:${pl.color}">${bal}</span> puntos</div>
+    <div class="catalog">${cat}</div>
+    <div class="hist"><h2>Canjes de ${pl.name}</h2><ul>${hist}</ul></div>`;
+}
+function semanas(){
+  const ws=allWeeks().sort((a,b)=>b-a);
+  if(!ws.length)return '<p>Todavía no hay semanas registradas.</p>';
+  return ws.map(w=>{
+    const an=S.anuncios[w];
+    const tabla=PLAYERS.map(p=>`<div style="color:${p.color}">${p.name}</div><div>${ptsSemana(w,p.id)} L-V · ${ptsFinde(w,p.id)} finde</div>`).join('');
+    const ganador=an?an.texto:'Sin anunciar';
+    return `<div class="card totals" style="margin-bottom:16px"><div style="grid-column:1/-1"><h2>Semana del ${fmt(w,{day:'numeric',month:'long'})}</h2></div>${tabla}<div style="grid-column:1/-1;margin-top:10px;font-weight:normal">${ganador}</div></div>`;
+  }).join('');
+}
+function reglas(){
+  const lista=CATS.map(c=>`<h3 style="margin:14px 0 4px;color:var(--coral)">${c}</h3><ul>${ITEMS.filter(i=>i.c===c).map(i=>`<li>${i.n}: <strong>${i.p}</strong></li>`).join('')}</ul>`).join('');
+  return `<div class="card reglas">
+    <h2>Cómo se gana</h2>
+    <p>Cada ítem que cumples da sus puntos. Un día completo suma ${MAX_DIA}. Los ajustes manuales suman o restan puntos a quien elijas.</p>
+    ${lista}
+    <h2>Rachas 🔥</h2>
+    <p>Un día cuenta para la racha si llega a <strong>16 puntos</strong>. Cada <strong>4 días seguidos</strong> se suman <strong>6 puntos</strong> de una vez. Si un día no llega a 16, la racha empieza de nuevo.</p>
+    <h2>La semana 📅</h2>
+    <p>La semana va de lunes a viernes. Cada lunes el contador semanal vuelve a cero. Los puntos del sábado y el domingo se anotan aparte: cuentan para el saldo, pero no para la corona.</p>
+    <h2>Corona 👑</h2>
+    <p>Es para quien más puntos suma de lunes a viernes. Si hay empate, la corona es para todos los empatados. Se anuncia el viernes con el botón "Anunciar campeón de la semana", que escribe la explicación sola. Hasta el siguiente anuncio, la corona se queda con quien la tenga. Si no se anuncia el viernes, el botón sigue disponible.</p>
+    <h2>Estrella ⭐</h2>
+    <p>Es para quien más puntos suma en un día. No da premio, solo se ve en la tarjeta.</p>
+    <h2>Canjes 🎁</h2>
+    <p>Se gastan con el saldo total acumulado. Los puntos no se reinician cada semana, y lo que no se canjea se acumula.</p>
+    <h2>Semanas 🗂️</h2>
+    <p>En la pestaña Semanas está el historial de cada semana: puntos de lunes a viernes, fin de semana y quién tuvo la corona.</p>
+  </div>`;
+}
+function render(){
+  const tabs=[['inicio','Inicio'],['puntuar','Puntuar'],['canjear','Canjear'],['semanas','Semanas'],['reglas','Reglas']];
+  document.getElementById('tabs').innerHTML=tabs.map(([t,l])=>`<button class="${tab===t?'on':''}" onclick="setTab('${t}')">${l}</button>`).join('');
+  document.getElementById('weekLabel').textContent='Semana de lunes a viernes, desde el '+fmt(weekOf(dk(new Date())),{day:'numeric',month:'long'});
+  const body=tab==='inicio'?inicio():tab==='puntuar'?puntuar():tab==='canjear'?canjearView():tab==='semanas'?semanas():reglas();
+  document.getElementById('btnCel').textContent=tab==='puntuar'?'🎖️ Ceremonia':'🎉 Celebrar';
+  document.getElementById('app').innerHTML=body;
+}
+mostrarLogin();
+</script>
+</body>
+</html>
