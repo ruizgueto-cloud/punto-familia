@@ -65,6 +65,33 @@ input{font:inherit;font-size:16px;padding:8px;border:3px solid var(--ink);border
 #confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9}
 #confetti i{position:absolute;top:-16px;width:10px;height:14px;border-radius:3px;animation:fall 2.8s linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.sec{margin:30px 0 12px;font-size:22px}
+.sec:first-child{margin-top:0}
+.nota{font-size:14px;margin:10px 0 0;line-height:1.4}
+.victs{display:flex;gap:16px;margin-top:6px}
+.victs>div{text-align:center;flex:1}
+.vi{font-size:22px;display:block}
+.vn{display:block;font-size:34px;font-weight:bold;color:var(--c);line-height:1.1}
+.victs small{font-size:13px}
+.wk{margin-bottom:16px}
+.wk h3{margin:0 0 8px;font-size:18px}
+.wrow{display:grid;grid-template-columns:88px 1fr 64px;gap:10px;align-items:center;margin:8px 0}
+.wname{font-weight:bold;font-size:15px;white-space:nowrap;color:var(--c)}
+.wbar{height:22px;background:#F1ECE0;border:2px solid var(--ink);border-radius:999px;overflow:hidden;display:flex}
+.wbar i{display:block;height:100%;background:var(--c)}
+.wbar i.fin{opacity:.4}
+.wval{font-size:13px;text-align:right;white-space:nowrap}
+.leyenda{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;margin:0 0 12px;align-items:center}
+.leyenda i{display:inline-block;width:26px;height:12px;border:2px solid var(--ink);border-radius:999px;background:var(--ink);vertical-align:middle;margin-right:6px}
+.leyenda i.fin{opacity:.4}
+.mini svg{width:22px;height:22px;vertical-align:middle}
+.mini{display:inline-block;vertical-align:middle}
+.evowrap{display:flex}
+#evoY{flex:0 0 38px}
+#evoScroll{flex:1;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#evoScroll svg,#evoY svg{display:block}
+.evoinfo{margin-top:14px}
+.evoinfo div.l{margin:4px 0;font-size:15px}
 .pts{white-space:nowrap}
 @media (max-width:600px){
   main{padding:12px}
@@ -419,6 +446,80 @@ function enviar(){
   },300);
 }
 
+
+/* ---------- victorias y evolución ---------- */
+function hoyW(){return weekOf(dk(new Date()))}
+function semanaCerrada(w){return w<hoyW()||!!(S.anuncios&&S.anuncios[w])}
+function coronasDe(pid){return allWeeks().filter(w=>semanaCerrada(w)&&ganadores(w).includes(pid)).length}
+function estrellasDe(pid){const hoy=dk(new Date());return allKeys().filter(k=>k<hoy&&ganadoresDia(k).includes(pid)).length}
+function evoSemanas(){const a=allWeeks();const w0=Math.min(...a),w1=Math.max(...a,hoyW());const r=[];for(let w=w0;w<=w1;w+=7)r.push(w);return r}
+let EVO=new Set(PLAYERS.map(p=>p.id)), EVO_W=null;
+function evoChipsHTML(){
+  const todos=EVO.size===PLAYERS.length;
+  return PLAYERS.map(p=>`<button class="chip ${EVO.has(p.id)?'on':''}" style="--c:${p.color}" aria-pressed="${EVO.has(p.id)}" onclick="evoTog('${p.id}')"><span class="mini">${p.emoji}</span> ${p.name}</button>`).join('')
+    +`<button class="${todos?'on':''}" onclick="evoTodos()">Todos</button>`;
+}
+function evoTog(pid){if(EVO.has(pid))EVO.delete(pid);else EVO.add(pid);pintarEvo(false)}
+function evoTodos(){EVO=new Set(PLAYERS.map(p=>p.id));pintarEvo(false)}
+function evoSem(w){EVO_W=w;pintarEvo(false)}
+function pintarEvo(final){
+  const sc=document.getElementById('evoScroll'),yy=document.getElementById('evoY');
+  if(!sc||!yy)return;
+  const keep=sc.scrollLeft;
+  document.getElementById('evoChips').innerHTML=evoChipsHTML();
+  const ws=evoSemanas(),n=ws.length,cw=sc.clientWidth||300;
+  const step=n>=8?Math.max(40,Math.floor(cw/8)):Math.min(90,Math.floor(cw/n));
+  const W=n*step,H=240,padT=26,padB=30,ih=H-padT-padB;
+  const vals={};PLAYERS.forEach(p=>vals[p.id]=ws.map(w=>ptsSemana(w,p.id)));
+  const todos=PLAYERS.flatMap(p=>vals[p.id]);
+  const mx=Math.max(10,...todos),mn=Math.min(0,...todos);
+  const st=[5,10,20,25,50,100,200,500].find(x=>x>=(mx-mn)/4)||1000;
+  const hi=Math.ceil(mx/st)*st,lo=Math.floor(mn/st)*st;
+  const Y=v=>padT+(hi-v)/(hi-lo)*ih, X=i=>i*step+step/2;
+  if(EVO_W===null||!ws.includes(EVO_W))EVO_W=ws[n-1];
+  let ys='',g='';
+  for(let v=lo;v<=hi;v+=st){
+    ys+=`<text x="34" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="#243461">${v}</text>`;
+    g+=`<line x1="0" x2="${W}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v===0?'#243461':'#E3DCC8'}" stroke-width="${v===0?1.5:1}"/>`;
+  }
+  const iSel=ws.indexOf(EVO_W);
+  g+=`<rect x="${iSel*step}" y="0" width="${step}" height="${H-padB+6}" fill="#FFE066" opacity=".45" rx="8"/>`;
+  ws.forEach((w,i)=>{g+=`<text x="${X(i)}" y="${H-10}" text-anchor="middle" font-size="11" fill="#243461">${fmt(w,{day:'numeric',month:'short'})}</text>`});
+  PLAYERS.filter(p=>EVO.has(p.id)).forEach(p=>{
+    const pts_=ws.map((w,i)=>X(i)+','+Y(vals[p.id][i])).join(' ');
+    g+=`<polyline points="${pts_}" fill="none" stroke="${p.color}" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    ws.forEach((w,i)=>{
+      g+=`<circle cx="${X(i)}" cy="${Y(vals[p.id][i])}" r="4.5" fill="${p.color}" stroke="#fff" stroke-width="1.5"/>`;
+      if(semanaCerrada(w)&&ganadores(w).includes(p.id))g+=`<text x="${X(i)}" y="${Y(vals[p.id][i])-9}" text-anchor="middle" font-size="16">👑</text>`;
+    });
+  });
+  ws.forEach((w,i)=>{g+=`<rect x="${i*step}" y="0" width="${step}" height="${H}" fill="transparent" style="cursor:pointer" onclick="evoSem(${w})"/>`});
+  yy.innerHTML=`<svg width="38" height="${H}" viewBox="0 0 38 ${H}">${ys}</svg>`;
+  sc.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="font-family:inherit">${g}</svg>`;
+  sc.scrollLeft=final?sc.scrollWidth:keep;
+  const sel=PLAYERS.filter(p=>EVO.has(p.id));
+  const gan=semanaCerrada(EVO_W)?ganadores(EVO_W):[];
+  document.getElementById('evoInfo').innerHTML=sel.length
+    ?`<div class="card evoinfo"><strong>Semana del ${fmt(EVO_W,{day:'numeric',month:'long'})}</strong>${semanaCerrada(EVO_W)?'':' (en curso)'}`
+      +sel.map(p=>`<div class="l" style="color:${p.color}"><strong>${p.name}</strong>: ${ptsSemana(EVO_W,p.id)} puntos de lunes a viernes${gan.includes(p.id)?' 👑':''}</div>`).join('')+`</div>`
+    :'<p>Toca un nombre para ver su línea.</p>';
+}
+function marcador(){
+  const cards=PLAYERS.map(p=>`<div class="card pcard" style="--c:${p.color}">
+    <div class="av">${p.emoji}</div><div class="nm">${p.name}</div>
+    <div class="victs"><div><span class="vi">👑</span><span class="vn">${coronasDe(p.id)}</span><small>coronas</small></div>
+    <div><span class="vi">⭐</span><span class="vn">${estrellasDe(p.id)}</span><small>estrellas</small></div></div></div>`).join('');
+  return `<h2 class="sec">🏅 Marcador de victorias</h2><div class="grid4">${cards}</div>
+    <p class="nota">Corona: semana ganada (lunes a viernes). Estrella: día ganado. En caso de empate, suman todos los empatados.</p>`;
+}
+function evolucion(){
+  return `<h2 class="sec">📈 Evolución</h2>
+    <div class="chips" id="evoChips">${evoChipsHTML()}</div>
+    <div class="card"><div class="evowrap"><div id="evoY"></div><div id="evoScroll"></div></div>
+    <p class="nota">Puntos de lunes a viernes por semana. 👑 marca la semana ganada. Desliza hacia la izquierda para ver semanas anteriores y toca una semana para ver sus puntos.</p></div>
+    <div id="evoInfo"></div>`;
+}
+
 /* ---------- vistas ---------- */
 function inicio(){
   const today=new Date(), tk=dk(today), w=weekOf(tk), uw=ultimaSemanaCerrada();
@@ -495,12 +596,21 @@ function canjearView(){
 function semanas(){
   const ws=allWeeks().sort((a,b)=>b-a);
   if(!ws.length)return '<p>Todavía no hay semanas registradas.</p>';
-  return ws.map(w=>{
+  const tarjetas=ws.map(w=>{
+    const cerrada=semanaCerrada(w), gan=cerrada?ganadores(w):[];
+    const tot=PLAYERS.map(p=>({p,lv:ptsSemana(w,p.id),fin:ptsFinde(w,p.id)}));
+    const mx=Math.max(1,...tot.map(t=>Math.max(0,t.lv)+Math.max(0,t.fin)));
+    const filas=tot.map(t=>`<div class="wrow" style="--c:${t.p.color}">
+      <div class="wname">${t.p.name}${gan.includes(t.p.id)?' 👑':''}</div>
+      <div class="wbar"><i style="width:${Math.max(0,t.lv)/mx*100}%"></i><i class="fin" style="width:${Math.max(0,t.fin)/mx*100}%"></i></div>
+      <div class="wval"><strong>${t.lv}</strong> + ${t.fin}</div></div>`).join('');
     const an=S.anuncios[w];
-    const tabla=PLAYERS.map(p=>`<div style="color:${p.color}">${p.name}</div><div>${ptsSemana(w,p.id)} L-V · ${ptsFinde(w,p.id)} finde</div>`).join('');
-    const ganador=an?an.texto:'Sin anunciar';
-    return `<div class="card totals" style="margin-bottom:16px"><div style="grid-column:1/-1"><h2>Semana del ${fmt(w,{day:'numeric',month:'long'})}</h2></div>${tabla}<div style="grid-column:1/-1;margin-top:10px;font-weight:normal">${ganador}</div></div>`;
+    return `<div class="card wk"><h3>Semana del ${fmt(w,{day:'numeric',month:'long'})}${cerrada?'':' (en curso)'}</h3>${filas}
+      <div style="margin-top:10px;font-size:15px">${an?an.texto:'Sin anunciar'}</div></div>`;
   }).join('');
+  return marcador()
+    +`<h2 class="sec">🗂️ Semanas</h2><div class="leyenda"><span><i></i>Lunes a viernes</span><span><i class="fin"></i>Fin de semana</span></div>`+tarjetas
+    +evolucion();
 }
 function reglas(){
   const lista=CATS.map(c=>`<h3 style="margin:14px 0 4px;color:var(--coral)">${c}</h3><ul>${ITEMS.filter(i=>i.c===c).map(i=>`<li>${i.n}: <strong>${i.p}</strong></li>`).join('')}</ul>`).join('');
@@ -519,7 +629,7 @@ function reglas(){
     <h2>Canjes 🎁</h2>
     <p>Se gastan con el saldo total acumulado. Los puntos no se reinician cada semana, y lo que no se canjea se acumula.</p>
     <h2>Semanas 🗂️</h2>
-    <p>En la pestaña Semanas está el historial de cada semana: puntos de lunes a viernes, fin de semana y quién tuvo la corona.</p>
+    <p>En la pestaña Semanas está el marcador de victorias (coronas y estrellas de cada uno), el historial de cada semana con barras de colores y la gráfica de evolución, donde puedes ver una o varias personas a la vez.</p>
   </div>`;
 }
 function render(){
@@ -529,6 +639,7 @@ function render(){
   const body=tab==='inicio'?inicio():tab==='puntuar'?puntuar():tab==='canjear'?canjearView():tab==='semanas'?semanas():reglas();
   document.getElementById('btnCel').textContent=tab==='puntuar'?'🎖️ Ceremonia':'🎉 Celebrar';
   document.getElementById('app').innerHTML=body;
+  if(tab==='semanas')pintarEvo(true);
 }
 mostrarLogin();
 </script>
