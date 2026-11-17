@@ -100,7 +100,7 @@ input{font:inherit;font-size:16px;padding:8px;border:3px solid var(--ink);border
 
 <script>
 const BIN_URL = 'https://api.jsonbin.io/v3/b/6afc293cffd5d16053c80c2b';
-const MASTER_KEY = '$2a$10$FUxMwSIuhZmQaSdXRw3sguhpcBuzpfnXgi0MM0JnVHDxWqS/NbwR.';
+const MASTER_KEY = 'PON_AQUI_TU_MASTER_KEY';
 const CLAVE_FAMILIA = '2023';
 const DAY = 864e5, MIN = 16, RACHA_DIAS = 4, RACHA_BONUS = 6;
 const PLAYERS = [
@@ -109,22 +109,22 @@ const PLAYERS = [
   {id:'eric',name:'Éric',color:'#3A86FF',emoji:'⚡'},
   {id:'paula',name:'Paula',color:'#B565E8',emoji:'<svg viewBox="0 0 64 64" width="44" height="44"><path d="M6 36h52l-8 12H14z" fill="#8B5A2B" stroke="#243461" stroke-width="3" stroke-linejoin="round"/><path d="M32 36V8" stroke="#243461" stroke-width="3"/><path d="M32 10c12 4 16 12 16 20H32z" fill="#fff" stroke="#243461" stroke-width="3" stroke-linejoin="round"/><path d="M32 12c-8 2-12 8-12 16h12z" fill="#FFC93C" stroke="#243461" stroke-width="3" stroke-linejoin="round"/><path d="M6 36c-4-6-4-12 0-18" fill="none" stroke="#243461" stroke-width="3" stroke-linecap="round"/></svg>'}
 ];
-const CATS = ['Casa','Cole','Convivencia','Noche y ánimo'];
+const CATS = ['Casa','Cole','Convivencia','Ver las cosas buenas'];
 const ITEMS = [
   {id:'cama',n:'Hago la cama',p:1,c:'Casa'},
   {id:'mesa',n:'Pongo y quito la mesa para comer',p:2,c:'Casa'},
   {id:'cuarto',n:'Recojo mi cuarto',p:3,c:'Casa'},
-  {id:'papas',n:'Ayudo a papá y mamá en la casa',p:2,c:'Casa'},
+  {id:'tareas',n:'Hago tareas de casa, también ayudando a papá y mamá',p:2,c:'Casa'},
   {id:'cole',n:'Salimos a tiempo para llegar al cole',p:1,c:'Cole'},
   {id:'deberes',n:'Hago los deberes',p:1,c:'Cole'},
   {id:'estudio',n:'Estudio',p:2,c:'Cole'},
   {id:'caso',n:'Hago caso a la primera vez',p:3,c:'Convivencia'},
   {id:'pelea',n:'No me peleo',p:2,c:'Convivencia'},
+  {id:'enfado',n:'No me he enfadado',p:3,c:'Convivencia'},
+  {id:'cama2',n:'Me voy a la cama rápido',p:1,c:'Convivencia'},
   {id:'pesado',n:'No soy pesado',p:1,c:'Convivencia'},
-  {id:'bonitas',n:'Veo las cosas buenas',p:1,c:'Convivencia'},
-  {id:'ayudo',n:'Ayudo a los demás',p:1,c:'Convivencia'},
-  {id:'enfado',n:'No me he enfadado',p:3,c:'Noche y ánimo'},
-  {id:'cama2',n:'Me voy a la cama rápido',p:1,c:'Noche y ánimo'}
+  {id:'bueno',n:'Digo algo bueno de alguien o de algo, aunque el día haya sido malo',p:1,c:'Ver las cosas buenas'},
+  {id:'gracias',n:'Doy las gracias o digo algo bonito a alguien de la familia',p:1,c:'Ver las cosas buenas'}
 ];
 const MAX_DIA = ITEMS.reduce((s,i)=>s+i.p,0);
 const REWARDS = [
@@ -397,6 +397,16 @@ function entrar(){
   CLAVE=escrita;
   cargarDatos();
 }
+function migrar(){
+  Object.keys(S.checks).forEach(k=>{
+    Object.keys(S.checks[k]).forEach(pid=>{
+      const c=S.checks[k][pid];
+      if(c.bonitas){c.bueno=true;delete c.bonitas}
+      if(c.papas||c.ayudo){c.tareas=true}
+      delete c.papas; delete c.ayudo;
+    });
+  });
+}
 async function cargarDatos(){
   document.getElementById('app').innerHTML='<p>Cargando datos…</p>';
   try{
@@ -404,6 +414,7 @@ async function cargarDatos(){
     if(!r.ok)throw new Error('HTTP '+r.status);
     const o=(await r.json()).record||{};
     S={checks:o.checks||{},redeemed:o.redeemed||{},ajustes:o.ajustes||[],corona:o.corona||null,anuncios:o.anuncios||{},estrella:o.estrella};
+    migrar();
     render();
   }catch(e){
     document.getElementById('app').innerHTML=`<p>No se pudieron cargar los datos (${e.message}). Recarga la página e inténtalo otra vez.</p>`;
